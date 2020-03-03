@@ -1,6 +1,6 @@
 # Bulk Post Chrome Extension
 
-[![N|Solid](https://github.com/chrome_extension/icon.png)](https://nodesource.com/products/nsolid)
+[![N|Solid](https://github.com/chrome_extension/icon.png)](https://github.com/chrome_extension/icon.png)
 
 [![CircleCI](https://circleci.com/gh/circleci/circleci-docs.svg?style=svg)](https://circleci.com/gh/circleci/circleci-docs)
 
