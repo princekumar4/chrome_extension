@@ -12,13 +12,13 @@ Bulk Post chrome extension is a plugin used to send bulk data received from goog
   - Sends bulk data one by one to database 
 
 ### Imports required
-*flask
-*requests
-*json
-*cors
-*urlencode
-*numpy
-*pandas
+* flask
+* requests
+* json
+* cors
+* urlencode
+* numpy
+* pandas
 
 ### Installation
 
