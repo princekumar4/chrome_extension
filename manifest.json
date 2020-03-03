@@ -1,0 +1,29 @@
+{
+    "manifest_version":2,
+    "name":"Sniffer",
+    "version":"1.0",
+    "description":"The sniffer to capture all HTTP requests",
+    "permissions": [
+        "debugger",
+        "cookies",
+        "identity",
+        "<all_urls>"
+    ],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "oauth2": {
+        "client_id": "591768037455-9nkbg4o3uuthoghkb4t3528tu4bdlpcf.apps.googleusercontent.com",
+        "scopes": [
+          "https://www.googleapis.com/auth/spreadsheets.readonly"
+        ]
+      },
+    "browser_action": {
+        "default_icon": "icon.png",
+        "default_title": "Sniffy"
+    },
+    "icons": { "16": "icon.png",
+        "48": "icon.png",
+       "128": "icon.png" }
+}

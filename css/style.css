@@ -1,0 +1,36 @@
+h1 {
+    font-size: 40px;
+    text-decoration: underline;
+    color: darkblue;
+    text-align: center;
+}
+
+h3{
+    text-align: center;
+    color: red;
+    font-size: 25px;
+}
+
+div{
+    font-size: large;
+    line-height: 1.6;
+}
+
+#submit{
+    text-align:center;
+    width: 100%;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    text-decoration: none;
+    padding: 15px 32px;
+    font-size: 20px;
+    margin-top : 20px;
+    cursor: pointer;
+}
+
+hr{
+    height: 3px;
+    border: none;
+    background-color: black;
+}
