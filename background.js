@@ -5,6 +5,7 @@ chrome.browserAction.onClicked.addListener(function(tab){
 
 var version = "1.0"
 
+//open new tab with its tabId
 function onAttach(tabId){
     if(chrome.runtime.lastError){
         alert(chrome.runtime.lastError.message);

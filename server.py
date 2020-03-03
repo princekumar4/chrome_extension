@@ -12,21 +12,8 @@ import pandas as pd
 import numpy as np
 
 app = Flask(__name__)
+# allowing CORS policy
 CORS(app)
-
-# mongoConnect = pymongo.MongoClient("mongodb://127.0.0.1:27017/userData?authSource=admin")
-# db = mongoConnect.userData
-# collection = db.users
-
-'''getting all requests from header.js
-@app.route('/getFormDataRequests',methods=['POST'])
-def getFormRequests():
-    print("response recieved by the server")
-    print(request)
-    inRequest = request.get_json(force=True)
-    collection.insert_one(inRequest)
-    mongoConnect.close()
-    return "true"'''
 
 '''getting all data from googleSpreadSheet'''
 @app.route('/getScript', methods=['POST'])
@@ -37,27 +24,23 @@ def getScriptData():
     finalCookie:str
 
     inRequest = request.get_json(force=True)
-    # getting formKeys and postURL from the request
+    # extracting all keys from the passed object
     feedUrl = inRequest['url']
     feedKey = inRequest['mapKey']
     feedCookie = inRequest['cookie']
     feedgSheetId = inRequest['gSheetId']
     feedAccessToken = inRequest['access_token']
     feedKey = [item.lower() for item in feedKey]
-    print(feedKey)
-    print(feedCookie)
-    print(feedAccessToken)
 
+    #loop for extracting name and value from cookies object
     for i in range(len(feedCookie)):
         cookieRoot = feedCookie[i]['name']
         cookieSession = feedCookie[i]['value']
         if(i==0):
             finalCookie = cookieRoot+"="+cookieSession+";"
-            # print(cookieRoot,cookieSession+";",sep='=',end='')
     finalCookie = finalCookie+cookieRoot+"="+cookieSession            
-    # print(cookieRoot,cookieSession,sep='=')
     
-
+    #headers for reading googlesheet data using access_token
     headers = {'authorization': f'Bearer {feedAccessToken}',
            'Content-Type': 'application/vnd.api+json'}
 
@@ -70,30 +53,8 @@ def getScriptData():
     printSheetHeaders = df[0]
     getGSheetData = df
     printSheetHeaders = [item.lower() for item in printSheetHeaders]
-    print(printSheetHeaders)
 
-    # comparing formData key with googleSheetHeaders
-    print("Comparing result...")
-    if feedKey == printSheetHeaders:
-        print("Matched")
-        postGsheet(feedUrl, getGSheetData, finalCookie)
-        # print(feedUrl)
-        # print(getGSheetData)
-    else:
-        print("formHeaders not matched")
-
-    '''user_docs = []
-
-    for i in (feed[1:]):
-        doc = {}
-         doc['firstname'] = i[0]
-         doc['lastname'] = i[1]
-         doc['phone'] = i[-1]
-      
-        user_docs += [doc]
-     result = collection.insert_many(user_docs)
-    print("total inserted: ", len(result.inserted_ids))'''
-    return "true"
+    postGsheet(feedUrl, getGSheetData, finalCookie)
 
 def postGsheet(url, getGSheetData, finalCookie):
     # encoding gSheetData into x-www-form-urlencoded
@@ -131,9 +92,8 @@ def get_google_sheet_df(headers: dict, google_sheet_id: str, _range: str):
     url = f'https://sheets.googleapis.com/v4/spreadsheets/{google_sheet_id}/values/{_range}'
     r = requests.get(url, headers=headers)
     df = r.json()['values']
-    # df = pd.DataFrame(values[1:])
     return df
 
-
+#main
 if __name__ == '__main__':
     app.run(port=9090, debug=False)

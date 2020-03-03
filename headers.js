@@ -8,19 +8,21 @@ var requests = {};
 var postData = {};
 var cookies = null;
 
+//on load event
 window.addEventListener("load", function () {
   chrome.debugger.sendCommand({
     tabId: tabId
   }, "Network.enable");
 });
 
+//on unload event
 window.addEventListener("unload", function () {
   chrome.debugger.detach({
     tabId: tabId
   });
 });
 
-//getting authentication token
+//getting authentication token and calling onEvent
 chrome.identity.getAuthToken({
   'interactive': true
 }, function (token) {
@@ -37,7 +39,7 @@ chrome.identity.getAuthToken({
   }
 });
 
-//onEvent
+//onEvent function
 function onEvent(debuggeeId, message, params) {
   if (tabId != debuggeeId.tabId)
     return;
@@ -45,7 +47,8 @@ function onEvent(debuggeeId, message, params) {
   if (message == "Network.requestWillBeSent") {
     var requestDiv = requests[params.requestId];
     if (!requestDiv) {
-      //allNetworkRequests = params.request;
+
+      //getting only POST requests
       if (params.request.method == "POST") {
         postURL = params.request.url;
         postData = params.request.postData;
@@ -54,7 +57,8 @@ function onEvent(debuggeeId, message, params) {
         console.log(JSON.stringify(postURL, undefined, 4));
         console.log(JSON.stringify(postData, undefined, 4));
         console.log(access_token);
-        //inserting Keys into array
+
+        //inserting post formKeys into array
         storeKey = [];
         var myRegex = /([^&]+)=/g;
         var out = myRegex.exec(postData);
@@ -64,7 +68,7 @@ function onEvent(debuggeeId, message, params) {
           out = myRegex.exec(postData);
         }
 
-        //capturing cookies
+        //capturing cookies of current domain
         chrome.cookies.getAll({
             url: postURL
           },
@@ -100,17 +104,13 @@ function onEvent(debuggeeId, message, params) {
                 document.body.appendChild(temp);
               }
 
-              // //horizontal rule
-              // var hr = document.createElement('hr');
-              // document.body.appendChild(hr);
-
               //getting googlesheetId from user
               gSheetId = prompt("Please provide your googlesheet Id");
               if (!gSheetId) {
                 console.log("Operation Cannot be Performed! Please refresh");
                 alert("Operation Cannot be Performed! Please refresh");
               } else {
-                //Converting postURL and Keys into json format
+                //Converting postURL and Keys into json object
                 var data = {
                   'url': postURL,
                   'mapKey': storeKey,
@@ -119,18 +119,16 @@ function onEvent(debuggeeId, message, params) {
                   'access_token': access_token
                 }
                 console.log(data);
-                // proceedButton.setAttribute("onclick", "promptForgSheetId(data);");
+                //submit button as PROCEED
                 var proceedButton = document.createElement("INPUT");
                 proceedButton.setAttribute("type", "submit");
                 proceedButton.setAttribute("id", "submit");
                 proceedButton.setAttribute("value", "PROCEED");
                 proceedButton.onclick = function () {
+                  //calling function to read googlesheet using access_token
                   promptForgSheetId(data);
                 }
                 document.body.appendChild(proceedButton);
-                // //horizontal rule
-                // var hr = document.createElement('hr');
-                // document.body.appendChild(hr);
               }
             } else {
               console.log('Can\'t get cookie! Check the name!');
@@ -141,9 +139,8 @@ function onEvent(debuggeeId, message, params) {
   }
 }
 
+//reading googlesheet using access_token
 function promptForgSheetId(data) {
-  // console.log(data);
-  // read googlesheetdata
   var obj = {
     method: 'GET',
     headers: {
@@ -157,12 +154,12 @@ function promptForgSheetId(data) {
   fetchPromise.then(response => {
     return response.json();
   }).then(value => {
-    // console.log(value.values[0]);
-    // console.log(data.mapKey);
+    //calling function to compare googlesheet headers with form keys
     compareGSheetHeaders(value.values[0], data.mapKey, data);
   })
 }
 
+//comparing goolesheet headers with form keys
 function compareGSheetHeaders(sheetHeaders, formHeaders, data) {
   if (JSON.stringify(sheetHeaders) === JSON.stringify(formHeaders)) {
     alert("Have patience");
@@ -172,7 +169,7 @@ function compareGSheetHeaders(sheetHeaders, formHeaders, data) {
   }
 }
 
-
+//sending all required object details to server
 function pass(data) {
 
   const response = fetch('http://127.0.0.1:9090/getScript', {
@@ -186,70 +183,3 @@ function pass(data) {
     alert("Data Posted!");
   });
 }
-
-//console.log(JSON.stringify(netcalls, undefined, 4));
-
-/*if(params.request.method == "POST"){
-  console.log("This is a POST request body");
-  console.log(params.request.postData);
-  console.log(params.request);
-}*/
-
-/*var requestDiv = document.createElement("div");
-      requestDiv.className = "request";
-      requests[params.requestId] = requestDiv;
-      var urlLine = document.createElement("div");
-      urlLine.textContent = params.request.url;
-      requestDiv.appendChild(urlLine);
-    }
-
-    /*if (params.redirectResponse)
-      appendResponse(params.requestId, params.redirectResponse);
-
-    var requestLine = document.createElement("div");
-    requestLine.textContent = "\n" + params.request.method + " " +
-      parseURL(params.request.url).path + " HTTP/1.1";    //line 2
-    requestDiv.appendChild(requestLine);
-    document.getElementById("container").appendChild(requestDiv);
-  
-  } /*else if (message == "Network.responseReceived") {
-    appendResponse(params.requestId, params.response);
-  }
-}
-
-/*function appendResponse(requestId, response) {
-  var requestDiv = requests[requestId];
-  if (requestDiv != null)
-    requestDiv.appendChild(formatHeaders(response.requestHeaders));
-
-  var statusLine = document.createElement("div");
-  statusLine.textContent = "\nHTTP/1.1 " + response.status + " " + response.statusText;  //line 3
-  if (requestDiv != null) {
-    requestDiv.appendChild(statusLine);
-    requestDiv.appendChild(formatHeaders(response.responseheaders));
-  }
-}
-
-function formatHeaders(headers) {
-  var text = "";
-  for (name in headers)
-    text += name + ": " + headers[name] + "\n";
-  var div = document.createElement("div");
-  div.textContent = text;
-  return div;
-}
-
-function parseURL(url) {
-  var result = {};
-  var match = url.match(
-    /^([^:]+):\/\/([^\/:]*)(?::([\d]+))?(?:(\/[^#]*)(?:#(.*))?)?$/i);
-  if (!match)
-    return result;
-  result.scheme = match[1].toLowerCase();
-  result.host = match[2];
-  result.port = match[3];
-  result.path = match[4] || "/";
-  result.fragment = match[5];
-  return result;
-
-}*/
