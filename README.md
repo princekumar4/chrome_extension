@@ -8,8 +8,8 @@ Bulk Post chrome extension is a plugin used to send bulk data received from goog
 
 # Features
 
-  - Using OAuth and then assigning access token
-  - Sends bulk data one by one to database 
+  - Using OAuth and then assigning access token.
+  - Sends bulk data one by one to database.
 
 ### Imports required
 * flask
