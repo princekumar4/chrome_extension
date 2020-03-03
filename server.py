@@ -1,9 +1,5 @@
 from __future__ import print_function
 from flask import Flask, request, json
-from pymongo import MongoClient
-import pymongo
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import requests
 from flask_cors import CORS
 import urllib3
